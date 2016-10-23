@@ -1,0 +1,1 @@
+include ':app', ':pvm-compiler', ':pvm-annotations'
