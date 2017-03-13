@@ -11,7 +11,7 @@ import java.util.TimerTask;
 
 public class MainPresenter extends Presenter {
     public void fetchUserInfo(final long uid) {
-        final MainPresenterProxy proxy = PVManager.INSTANCE.getProxy(this);
+        final MainPresenterProxy proxy = (MainPresenterProxy) PVManager.INSTANCE.getProxy(this);
         final Uri portraitUri = Uri.parse("http://www.yy.com");
         proxy.onFetchUserInfo(uid, portraitUri, "lunqw");
 

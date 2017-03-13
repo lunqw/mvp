@@ -30,6 +30,5 @@ dependencies {
     compile project(':pvm-annotations')
     apt project(':pvm-compiler')
     compile 'com.android.support:appcompat-v7:24.2.0'
-    compile 'com.android.support.constraint:constraint-layout:1.0.0-beta1'
     testCompile 'junit:junit:4.12'
 }

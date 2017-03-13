@@ -10,6 +10,7 @@ import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
+import com.yy.lqw.pvm.Proxy;
 import com.yy.lqw.pvm.annotations.PVM;
 import com.yy.lqw.pvm.annotations.PVMSink;
 
@@ -89,7 +90,8 @@ public class PVMProcessor extends AbstractProcessor {
                     .addField(vClassName, "mView", Modifier.PRIVATE);
 
             TypeSpec.Builder interfaceBuilder = TypeSpec.interfaceBuilder(iClassName);
-            interfaceBuilder.addModifiers(Modifier.PUBLIC);
+            interfaceBuilder.addModifiers(Modifier.PUBLIC)
+                    .addSuperinterface(Proxy.class);
             for (Element methodElement : roundEnv.getElementsAnnotatedWith(PVMSink.class)) {
                 if (methodElement.getEnclosingElement().equals(classElement)) {
                     ExecutableElement ee = (ExecutableElement) methodElement;

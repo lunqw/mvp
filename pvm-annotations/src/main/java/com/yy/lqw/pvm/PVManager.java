@@ -12,29 +12,47 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public enum PVManager {
     INSTANCE;
-    private Map<Object, Object> mViewProxyMap = new ConcurrentHashMap<>();
+    private Map<Presenter, Proxy> mViewProxyMap = new ConcurrentHashMap<>();
 
-    public <T> T bind(Object view) {
+    /**
+     * 绑定view对象，与presenter建立关联关系
+     *
+     * @param viewObject
+     * @return presenter
+     */
+    public Presenter bind(Object viewObject) {
+        if (viewObject == null) {
+            throw new NullPointerException("viewObject was null");
+        }
         Presenter presenter = null;
-        Class<?> viewClass = view.getClass();
+        Class<?> viewClass = viewObject.getClass();
         PVM pvmAnnotation = viewClass.getAnnotation(PVM.class);
+        if (pvmAnnotation == null) {
+            throw new IllegalArgumentException("@PVM annotation miss");
+        }
         Class<? extends Presenter> presenterClass = pvmAnnotation.presenter();
         try {
             presenter = presenterClass.newInstance();
             final String proxyName = viewClass.getName()
                     + presenterClass.getSimpleName()
                     + "ProxyImpl";
-            Class<?> proxyClass = Class.forName(proxyName);
-            Constructor<?> constructor = proxyClass.getConstructor(viewClass);
-            mViewProxyMap.put(presenter, constructor.newInstance(view));
-            presenter.attach();
+            Class<? extends Proxy> proxyClass = Class.forName(proxyName).asSubclass(Proxy.class);
+            Constructor<? extends Proxy> constructor = proxyClass.getConstructor(viewClass);
+            mViewProxyMap.put(presenter, constructor.newInstance(viewObject));
+            presenter.onAttachedToView(viewObject);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return (T) presenter;
+        return presenter;
     }
 
-    public <T> T getProxy(Object presenter) {
-        return (T) mViewProxyMap.get(presenter);
+    /**
+     * 获取presenter对应的Proxy对象
+     *
+     * @param presenter presenter
+     * @return presenter对应的Proxy对象
+     */
+    public Proxy getProxy(Presenter presenter) {
+        return mViewProxyMap.get(presenter);
     }
 }

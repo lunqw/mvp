@@ -5,11 +5,11 @@ package com.yy.lqw.pvm;
  */
 
 public abstract class Presenter {
-    public void attach() {
+    public void onAttachedToView(Object viewObject) {
 
     }
 
-    public void detach() {
+    public void onDetachedFromView(Object viewObject) {
 
     }
 }
