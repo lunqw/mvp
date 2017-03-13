@@ -1,1 +1,1 @@
-include ':app', ':pvm-compiler', ':pvm-annotations'
+include ':pvm-samples', ':pvm-base', ':pvm-compiler'

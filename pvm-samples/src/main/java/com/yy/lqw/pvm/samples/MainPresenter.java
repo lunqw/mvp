@@ -1,6 +1,9 @@
-package com.yy.lqw.pvm;
+package com.yy.lqw.pvm.samples;
 
 import android.net.Uri;
+
+import com.yy.lqw.pvm.PVManager;
+import com.yy.lqw.pvm.Presenter;
 
 import java.util.Timer;
 import java.util.TimerTask;
