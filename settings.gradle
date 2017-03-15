@@ -1,1 +1,6 @@
-include ':pvm-samples', ':pvm-base', ':pvm-compiler'
+include ':pvm'
+include ':pvm-annotations'
+include ':pvm-compiler'
+include ':pvm-samples'
+
+rootProject.name = 'pvm-parent'
