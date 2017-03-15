@@ -1,5 +1,7 @@
 package com.yy.lqw.pvm;
 
+import android.view.View;
+
 import com.yy.lqw.pvm.annotations.PVM;
 
 import java.lang.reflect.Constructor;
@@ -20,30 +22,41 @@ public enum PVManager {
      * @param viewObject
      * @return presenter
      */
-    public Presenter bind(Object viewObject) {
-        if (viewObject == null) {
-            throw new NullPointerException("viewObject was null");
+    public Presenter bind(final Object viewObject, final View lifeCycleObject) {
+        if (viewObject == null || lifeCycleObject == null) {
+            throw new NullPointerException("viewObject or view was null");
         }
-        Presenter presenter = null;
         Class<?> viewClass = viewObject.getClass();
         PVM pvmAnnotation = viewClass.getAnnotation(PVM.class);
         if (pvmAnnotation == null) {
             throw new IllegalArgumentException("@PVM annotation miss");
         }
+        Presenter result = null;
         Class<? extends Presenter> presenterClass = pvmAnnotation.presenter();
         try {
-            presenter = presenterClass.newInstance();
+            final Presenter presenter = (result = presenterClass.newInstance());
             final String proxyName = viewClass.getName()
                     + presenterClass.getSimpleName()
                     + "ProxyImpl";
             Class<? extends Proxy> proxyClass = Class.forName(proxyName).asSubclass(Proxy.class);
             Constructor<? extends Proxy> constructor = proxyClass.getConstructor(viewClass);
             mViewProxyMap.put(presenter, constructor.newInstance(viewObject));
-            presenter.onAttachedToView(viewObject);
+            lifeCycleObject.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+                @Override
+                public void onViewAttachedToWindow(View v) {
+                    presenter.onAttachedToView(viewObject);
+                }
+
+                @Override
+                public void onViewDetachedFromWindow(View v) {
+                    presenter.onDetachedFromView(viewObject);
+                    lifeCycleObject.removeOnAttachStateChangeListener(this);
+                }
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return presenter;
+        return result;
     }
 
     /**

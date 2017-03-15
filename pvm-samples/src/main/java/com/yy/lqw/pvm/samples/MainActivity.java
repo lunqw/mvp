@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mPortraitView = (ImageView) findViewById(R.id.iv_portrait);
         mNickText = (TextView) findViewById(R.id.tv_nick);
-        mPresenter = (MainPresenter) PVManager.INSTANCE.bind(this);
+        mPresenter = (MainPresenter) PVManager.INSTANCE.bind(this, getWindow().getDecorView());
     }
 
     public void onClick(View v) {

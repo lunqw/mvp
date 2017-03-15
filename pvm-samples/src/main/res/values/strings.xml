@@ -1,3 +1,5 @@
-<resources>
-    <string name="app_name">PVM</string>
-</resources>
+<resources >
+    <string name="app_name" >PVM</string >
+    <string name="login_passport">Passport</string>
+    <string name="login_password">Password</string>
+</resources >
