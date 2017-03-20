@@ -26,8 +26,17 @@ task clean(type: Delete) {
 ext {
     compileSdkVersion = 25
     buildToolsVersion = "25.0.1"
-    minSdkVersion = 19
+    minSdkVersion = 12
     targetSdkVersion = 25
     sourceCompatibilityVersion = JavaVersion.VERSION_1_7
     targetCompatibilityVersion = JavaVersion.VERSION_1_7
 }
+
+ext.deps = [
+        junit: 'junit:junit:4.12',
+        espressocore: 'com.android.support.test.espresso:espresso-core:2.2.2',
+        appcompat: 'com.android.support:appcompat-v7:25.1.0',
+        javapoet: 'com.squareup:javapoet:1.7.0',
+        autoservice: 'com.google.auto.service:auto-service:1.0-rc2',
+
+]

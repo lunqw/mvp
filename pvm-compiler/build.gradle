@@ -5,7 +5,7 @@ targetCompatibility = rootProject.ext.targetCompatibilityVersion
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.squareup:javapoet:1.7.0'
-    compile 'com.google.auto.service:auto-service:1.0-rc2'
+    compile deps.javapoet
+    compile deps.autoservice
     compile project(':pvm-annotations')
 }
