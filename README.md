@@ -30,6 +30,13 @@ View
 
 	@PVM(presenter = LoginPresenter.class)
 	public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
+	    @Override
+	    protected void onCreate(Bundle savedInstanceState) {
+	        super.onCreate(savedInstanceState);
+	        setContentView(R.layout.activity_login);
+	        mPresenter = (LoginPresenter) PVManager.INSTANCE.bind(this, getWindow().getDecorView());
+	    }
+
 	    @PVMSink
 	    void onLoginSuccess(String token) {
 	        Intent intent = new Intent(this, MainActivity.class);
