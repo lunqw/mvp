@@ -35,21 +35,23 @@ public enum PVManager {
         Class<? extends Presenter> presenterClass = pvmAnnotation.presenter();
         try {
             final Presenter presenter = (result = presenterClass.newInstance());
-            final String proxyName = viewClass.getName()
+            final String proxyImplName = viewClass.getName()
                     + presenterClass.getSimpleName()
                     + "ProxyImpl";
-            Class<? extends Proxy> proxyClass = Class.forName(proxyName).asSubclass(Proxy.class);
+            Class<? extends Proxy> proxyClass = Class.forName(proxyImplName)
+                    .asSubclass(Proxy.class);
             Constructor<? extends Proxy> constructor = proxyClass.getConstructor(viewClass);
-            mViewProxyMap.put(presenter, constructor.newInstance(viewObject));
+            final Proxy proxy = constructor.newInstance(viewObject);
+            mViewProxyMap.put(presenter, proxy);
             lifeCycleObject.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
                 @Override
                 public void onViewAttachedToWindow(View v) {
-                    presenter.onAttachedToView(viewObject);
+                    presenter.onAttachedToView(proxy);
                 }
 
                 @Override
                 public void onViewDetachedFromWindow(View v) {
-                    presenter.onDetachedFromView(viewObject);
+                    presenter.onDetachedFromView(proxy);
                     lifeCycleObject.removeOnAttachStateChangeListener(this);
                 }
             });

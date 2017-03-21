@@ -5,11 +5,11 @@ package com.yy.lqw.pvm;
  */
 
 public abstract class Presenter {
-    public void onAttachedToView(Object viewObject) {
+    public void onAttachedToView(Proxy proxy) {
 
     }
 
-    public void onDetachedFromView(Object viewObject) {
+    public void onDetachedFromView(Proxy proxy) {
 
     }
 }

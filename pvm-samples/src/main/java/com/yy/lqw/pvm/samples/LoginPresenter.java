@@ -1,7 +1,7 @@
 package com.yy.lqw.pvm.samples;
 
-import com.yy.lqw.pvm.PVManager;
 import com.yy.lqw.pvm.Presenter;
+import com.yy.lqw.pvm.Proxy;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -15,22 +15,21 @@ public class LoginPresenter extends Presenter {
     private LoginPresenterProxy mProxy;
 
     @Override
-    public void onAttachedToView(Object viewObject) {
-        super.onAttachedToView(viewObject);
-        mProxy = (LoginPresenterProxy) PVManager.INSTANCE.getProxy(this);
+    public void onAttachedToView(Proxy proxy) {
+        mProxy = (LoginPresenterProxy) proxy;
     }
 
     @Override
-    public void onDetachedFromView(Object viewObject) {
-        super.onDetachedFromView(viewObject);
+    public void onDetachedFromView(Proxy proxy) {
+
     }
 
-    public void login(String passport, String password) {
+    public void login(final String passport, final String password) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 if (System.currentTimeMillis() % 2 == 0) {
-                    mProxy.onLoginSuccess(toString());
+                    mProxy.onLoginSuccess(passport + "-" + password);
                 } else {
                     mProxy.onLoginFailed(1, "Unknown error");
                 }
