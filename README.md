@@ -24,7 +24,8 @@
 	//
 
 ### Sample
-#####View
+View
+
 	@PVM(presenter = LoginPresenter.class)
 	public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 	    @PVMSink
@@ -40,7 +41,8 @@
 	    }
 	}
 
-#####Presenter
+Presenter
+
 	public class LoginPresenter extends Presenter {
 	    private LoginPresenterProxy mProxy;
 	
