@@ -6,14 +6,16 @@
 
 ---
 ### 使用
-#####工程build.gradle
+工程build.gradle
+
 	buildscript {
 	    dependencies {
 	        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
 	    }
 	}
 
-#####模块build.gradle
+模块build.gradle
+
 	apply plugin: 'android-apt'
     compile 'com.github.lunqw.pvm:pvm:0.1.2'
     apt 'com.github.lunqw.pvm:pvm-compiler:0.1.2'
