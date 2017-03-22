@@ -17,8 +17,8 @@
 模块build.gradle
 
 	apply plugin: 'android-apt'
-    compile 'com.github.lunqw.pvm:pvm:0.1.2'
-    apt 'com.github.lunqw.pvm:pvm-compiler:0.1.2'
+    compile 'com.github.lunqw.pvm:pvm:0.1.3'
+    apt 'com.github.lunqw.pvm:pvm-compiler:0.1.3'
 
 ### 工作方式
 	// 待完成
@@ -30,37 +30,58 @@ View
 
 	@PVM(presenter = LoginPresenter.class)
 	public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
+	    LoginPresenter mPresenter;
+	
 	    @Override
 	    protected void onCreate(Bundle savedInstanceState) {
 	        super.onCreate(savedInstanceState);
 	        setContentView(R.layout.activity_login);
-	        mPresenter = (LoginPresenter) PVManager.INSTANCE.bind(this, getWindow().getDecorView());
+	        mPresenter = (LoginPresenter) PVManager.INSTANCE.bind(this,
+	                getWindow().getDecorView());
 	    }
-
+	
+	    @Override
+	    public void onClick(View v) {
+	        mPresenter.login(passport, password);
+	    }
+	
 	    @PVMSink
 	    void onLoginSuccess(String token) {
-	        Intent intent = new Intent(this, MainActivity.class);
-	        startActivity(intent);
+	        // TODO: login success
 	    }
 	
 	    @PVMSink
 	    void onLoginFailed(int code, String message) {
-	        final String error = String.format("%d: %s", code, message);
-	        mErrorText.setText(error);
+			// TODO: login failed
 	    }
 	}
 
 Presenter
 
-	public class LoginPresenter extends Presenter {
-	    private LoginPresenterProxy mProxy;
+	public class LoginPresenter implements Presenter {
+	    private Executor mExecutor = Executors.newSingleThreadExecutor();
+	    private LoginPresenterDelegate mDelegate;
 	
 	    @Override
-	    public void onAttachedToView(Proxy proxy) {
-	        mProxy = (LoginPresenterProxy) proxy;
+	    public void onAttachedToView(Delegate delegate) {
+	        mDelegate = (LoginPresenterDelegate) delegate;
+	    }
+	
+	    @Override
+	    public void onDetachedFromView(Delegate delegate) {
+	        // TODO: release resources
 	    }
 	
 	    public void login(final String passport, final String password) {
-	        mProxy.onLoginSuccess(passport + "-" + password);
+	        mExecutor.execute(new Runnable() {
+	            @Override
+	            public void run() {
+	                if (System.currentTimeMillis() % 2 == 0) {
+	                    mDelegate.onLoginSuccess(passport + "-" + password);
+	                } else {
+	                    mDelegate.onLoginFailed(1, "Unknown error");
+	                }
+	            }
+	        });
 	    }
 	}

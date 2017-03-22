@@ -1,7 +1,7 @@
 package com.yy.lqw.pvm.samples;
 
+import com.yy.lqw.pvm.Delegate;
 import com.yy.lqw.pvm.Presenter;
-import com.yy.lqw.pvm.Proxy;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -10,18 +10,18 @@ import java.util.concurrent.Executors;
  * Created by lunqingwen on 2017/3/15.
  */
 
-public class LoginPresenter extends Presenter {
+public class LoginPresenter implements Presenter {
     private Executor mExecutor = Executors.newSingleThreadExecutor();
-    private LoginPresenterProxy mProxy;
+    private LoginPresenterDelegate mDelegate;
 
     @Override
-    public void onAttachedToView(Proxy proxy) {
-        mProxy = (LoginPresenterProxy) proxy;
+    public void onAttachedToView(Delegate delegate) {
+        mDelegate = (LoginPresenterDelegate) delegate;
     }
 
     @Override
-    public void onDetachedFromView(Proxy proxy) {
-
+    public void onDetachedFromView(Delegate delegate) {
+        // TODO: release resources
     }
 
     public void login(final String passport, final String password) {
@@ -29,9 +29,9 @@ public class LoginPresenter extends Presenter {
             @Override
             public void run() {
                 if (System.currentTimeMillis() % 2 == 0) {
-                    mProxy.onLoginSuccess(passport + "-" + password);
+                    mDelegate.onLoginSuccess(passport + "-" + password);
                 } else {
-                    mProxy.onLoginFailed(1, "Unknown error");
+                    mDelegate.onLoginFailed(1, "Unknown error");
                 }
             }
         });

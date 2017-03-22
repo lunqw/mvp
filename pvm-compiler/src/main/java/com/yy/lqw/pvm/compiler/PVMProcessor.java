@@ -10,7 +10,7 @@ import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
-import com.yy.lqw.pvm.Proxy;
+import com.yy.lqw.pvm.Delegate;
 import com.yy.lqw.pvm.annotations.PVM;
 import com.yy.lqw.pvm.annotations.PVMSink;
 
@@ -56,42 +56,45 @@ public class PVMProcessor extends AbstractProcessor {
         for (Element classElement : roundEnv.getElementsAnnotatedWith(PVM.class)) {
             PVM pvmAnnotation = classElement.getAnnotation(PVM.class);
             // ClassName of view
-            ClassName vClassName = (ClassName) ClassName.get(classElement.asType());
+            ClassName viewClassName = (ClassName) ClassName.get(classElement.asType());
 
             // ClassName of presenter
-            ClassName pClassName;
+            ClassName presenterClassName;
             try {
-                pClassName = ClassName.get(pvmAnnotation.presenter());
+                presenterClassName = ClassName.get(pvmAnnotation.presenter());
             } catch (MirroredTypeException e) {
-                pClassName = (ClassName) ClassName.get(e.getTypeMirror());
+                presenterClassName = (ClassName) ClassName.get(e.getTypeMirror());
             }
 
-            // ClassName of interface
-            final String iName = pClassName.simpleName() + "Proxy";
-            ClassName iClassName = ClassName.get(pClassName.packageName(), iName);
+            // ClassName of delegate interface
+            final String delegateInterfaceName = presenterClassName.simpleName() + "Delegate";
+            ClassName delegateClassName = ClassName.get(
+                    presenterClassName.packageName(), delegateInterfaceName);
 
             // mHandler field
-            FieldSpec fieldSpec = FieldSpec.builder(mHandlerClassName, "mHandler", Modifier.PRIVATE)
+            FieldSpec handlerField = FieldSpec.builder(mHandlerClassName, "mHandler", Modifier.PRIVATE)
                     .initializer("new $T($T.getMainLooper())", mHandlerClassName, mLooperClassName)
                     .build();
 
             // constructor
             MethodSpec constructMethod = MethodSpec.constructorBuilder()
                     .addModifiers(Modifier.PUBLIC)
-                    .addParameter(vClassName, "view")
+                    .addParameter(viewClassName, "view")
                     .addStatement("mView = view")
                     .build();
-            final String cName = vClassName.simpleName() + iName + "Impl";
-            TypeSpec.Builder classBuilder = TypeSpec.classBuilder(cName);
+            final String delegateImplName = viewClassName.simpleName()
+                    + delegateInterfaceName
+                    + "Impl";
+            TypeSpec.Builder classBuilder = TypeSpec.classBuilder(delegateImplName);
             classBuilder.addModifiers(Modifier.PUBLIC)
-                    .addSuperinterface(iClassName)
+                    .addSuperinterface(delegateClassName)
                     .addMethod(constructMethod)
-                    .addField(fieldSpec)
-                    .addField(vClassName, "mView", Modifier.PRIVATE);
+                    .addField(handlerField)
+                    .addField(viewClassName, "mView", Modifier.PRIVATE);
 
-            TypeSpec.Builder interfaceBuilder = TypeSpec.interfaceBuilder(iClassName);
+            TypeSpec.Builder interfaceBuilder = TypeSpec.interfaceBuilder(delegateClassName);
             interfaceBuilder.addModifiers(Modifier.PUBLIC)
-                    .addSuperinterface(Proxy.class);
+                    .addSuperinterface(Delegate.class);
             for (Element methodElement : roundEnv.getElementsAnnotatedWith(PVMSink.class)) {
                 if (methodElement.getEnclosingElement().equals(classElement)) {
                     ExecutableElement ee = (ExecutableElement) methodElement;
@@ -100,10 +103,10 @@ public class PVMProcessor extends AbstractProcessor {
                 }
             }
 
-            String packageName = pClassName.packageName();
+            String packageName = presenterClassName.packageName();
             TypeSpec typeSpec = interfaceBuilder.build();
             JavaFile interfaceFile = JavaFile.builder(packageName, typeSpec).build();
-            packageName = vClassName.packageName();
+            packageName = viewClassName.packageName();
             typeSpec = classBuilder.build();
             JavaFile classFile = JavaFile.builder(packageName, typeSpec).build();
             try {

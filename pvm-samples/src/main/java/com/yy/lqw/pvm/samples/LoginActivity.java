@@ -1,6 +1,5 @@
 package com.yy.lqw.pvm.samples;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -13,7 +12,6 @@ import com.yy.lqw.pvm.annotations.PVMSink;
 
 @PVM(presenter = LoginPresenter.class)
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
-    private static final String TAG = "LoginActivity";
     LoginPresenter mPresenter;
     private EditText mPassport;
     private EditText mPassword;
@@ -39,8 +37,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     @PVMSink
     void onLoginSuccess(String token) {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+        // TODO: login success
     }
 
     @PVMSink
