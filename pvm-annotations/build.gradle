@@ -6,4 +6,5 @@ targetCompatibility = rootProject.ext.targetCompatibilityVersion
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(':pvm-base')
 }

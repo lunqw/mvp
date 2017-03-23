@@ -1,5 +1,6 @@
-include ':pvm'
+include ':pvm-base'
 include ':pvm-annotations'
+include ':pvm'
 include ':pvm-compiler'
 include ':pvm-samples'
 
