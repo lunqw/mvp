@@ -17,8 +17,8 @@
 模块build.gradle
 
 	apply plugin: 'android-apt'
-    compile 'com.github.lunqw.pvm:pvm:0.1.3'
-    apt 'com.github.lunqw.pvm:pvm-compiler:0.1.3'
+    compile 'com.github.lunqw.pvm:pvm:0.1.4'
+    apt 'com.github.lunqw.pvm:pvm-compiler:0.1.4'
 
 ### 工作方式
 	// 待完成
