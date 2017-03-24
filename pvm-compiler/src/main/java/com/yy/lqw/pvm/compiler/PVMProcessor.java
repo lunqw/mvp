@@ -164,7 +164,7 @@ public class PVMProcessor extends AbstractProcessor {
             methodBuilder.addModifiers(Modifier.ABSTRACT);
         } else if (kind == TypeSpec.Kind.CLASS) {
             methodBuilder.addAnnotation(Override.class)
-                    .beginControlFlow("if (mHandler.getLooper().isCurrentThread())")
+                    .beginControlFlow("if (Looper.myLooper() == Looper.getMainLooper())")
                     .addStatement("mView.$L($L)", methodName, parameters.toString())
                     .nextControlFlow("else")
                     .beginControlFlow("mHandler.post(new $T()", Runnable.class)

@@ -15,6 +15,16 @@ public enum PVManager {
     INSTANCE;
 
     private static final String TAG = "PVManager";
+    private boolean mDebug = false;
+
+    /**
+     * 开启调试模式
+     *
+     * @param debug
+     */
+    public void setDebug(boolean debug) {
+        mDebug = debug;
+    }
 
     /**
      * 绑定View和Present对象
@@ -39,6 +49,11 @@ public enum PVManager {
             throw new NullPointerException("viewObject or view was null");
         }
 
+        if (mDebug) {
+            Log.d(TAG, "Create PVM binding, viewObject: " + viewObject
+                    + ", lifeCycleObject: " + lifeCycleObject);
+        }
+
         Presenter result = null;
         final Class<?> viewClass = viewObject.getClass();
         final PVM pvmAnnotation = viewClass.getAnnotation(PVM.class);
@@ -51,7 +66,9 @@ public enum PVManager {
             final String delegateImplName = viewClass.getName()
                     + presenterClass.getSimpleName()
                     + "DelegateImpl";
-            Log.d(TAG, "Create DelegateImpl: " + delegateImplName);
+            if (mDebug) {
+                Log.d(TAG, "Create DelegateImpl: " + delegateImplName);
+            }
             final Class<? extends Delegate> delegateClass = Class.forName(delegateImplName)
                     .asSubclass(Delegate.class);
             final Constructor<? extends Delegate> constructor = delegateClass.getConstructor(viewClass);

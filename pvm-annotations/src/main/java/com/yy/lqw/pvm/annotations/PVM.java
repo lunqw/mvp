@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
  */
 
 @Target(ElementType.TYPE)
-@Retention(RetentionPolicy.CLASS)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface PVM {
     Class<? extends Presenter> presenter();
 }
