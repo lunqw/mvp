@@ -51,6 +51,7 @@ public enum PVManager {
             final String delegateImplName = viewClass.getName()
                     + presenterClass.getSimpleName()
                     + "DelegateImpl";
+            Log.d(TAG, "Create DelegateImpl: " + delegateImplName);
             final Class<? extends Delegate> delegateClass = Class.forName(delegateImplName)
                     .asSubclass(Delegate.class);
             final Constructor<? extends Delegate> constructor = delegateClass.getConstructor(viewClass);
@@ -68,7 +69,7 @@ public enum PVManager {
                 }
             });
         } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
+            Log.e(TAG, e.getMessage(), e);
         }
         return result;
     }
