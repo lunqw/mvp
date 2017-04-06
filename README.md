@@ -5,7 +5,7 @@
 3. 工作线程/UI线程切换；
 
 ---
-### 使用
+## 使用
 工程build.gradle
 
 	buildscript {
@@ -20,43 +20,49 @@
     compile 'com.github.lunqw.pvm:pvm:0.2.2'
     apt 'com.github.lunqw.pvm:pvm-compiler:0.2.2'
 
-### 工作方式
+## 工作方式
 	// 待完成
 	//
 	//
 
-### Sample
-View
-
-	@PVM(presenter = LoginPresenter.class)
+## Samples
+### 一个View只有一个Presenter
+	@PVM({LoginPresenter.class})
 	public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
-	    LoginPresenter mPresenter;
+	    private LoginPresenter mLoginPresenter = new LoginPresenter();
+	    private EditText mPassport;
+	    private EditText mPassword;
+	    private TextView mErrorText;
 	
 	    @Override
 	    protected void onCreate(Bundle savedInstanceState) {
 	        super.onCreate(savedInstanceState);
 	        setContentView(R.layout.activity_login);
-	        mPresenter = (LoginPresenter) PVManager.INSTANCE.bind(this,
-	                getWindow().getDecorView());
+	        PVManager.bind(getWindow().getDecorView(), this, mLoginPresenter);
+	        mPassport = (EditText) findViewById(R.id.et_passport);
+	        mPassword = (EditText) findViewById(R.id.et_password);
+	        mErrorText = (TextView) findViewById(R.id.tv_error_tips);
 	    }
 	
 	    @Override
 	    public void onClick(View v) {
-	        mPresenter.login(passport, password);
+	        final String passport = mPassport.getText().toString();
+	        final String password = mPassword.getText().toString();
+	        mLoginPresenter.login(passport, password);
 	    }
 	
 	    @PVMSink
 	    void onLoginSuccess(String token) {
-	        // TODO: login success
+	        final Intent intent = new Intent(this, MainActivity.class);
+	        startActivity(intent);
 	    }
 	
 	    @PVMSink
 	    void onLoginFailed(int code, String message) {
-			// TODO: login failed
+	        final String error = String.format("%d: %s", code, message);
+	        mErrorText.setText(error);
 	    }
 	}
-
-Presenter
 
 	public class LoginPresenter implements Presenter {
 	    private Executor mExecutor = Executors.newSingleThreadExecutor();
@@ -83,5 +89,80 @@ Presenter
 	                }
 	            }
 	        });
+	    }
+	}
+
+### 一个View含有多个Presenter
+
+	@PVM({MainPresenter.class, UserPresenter.class, SettingPresenter.class})
+	public class MainActivity extends AppCompatActivity {
+	    private static final String TAG = "MainActivity";
+	    private Presenter[] mPresenters = {new MainPresenter(), new UserPresenter(), new SettingPresenter()};
+	
+	    @Override
+	    protected void onCreate(Bundle savedInstanceState) {
+	        super.onCreate(savedInstanceState);
+	        setContentView(R.layout.activity_main);
+	        PVManager.bind(getWindow().getDecorView(), this, mPresenters);
+	    }
+	
+	    @PVMSink
+	    void onGetProducts(List<Object> products) {
+	        Log.d(TAG, "onGetProducts");
+	    }
+	
+	    @PVMSink(1)
+	    void onGetUserInfo(String nick, char sex, int age) {
+	        Log.d(TAG, "onGetUserInfo");
+	    }
+	
+	    @PVMSink(2)
+	    void onGetUserSetting(Map<String, String> settings) {
+	        Log.d(TAG, "onGetUserSetting");
+	    }
+	}
+	
+	public class MainPresenter implements Presenter {
+	    private MainPresenterDelegate mDelete;
+	
+	    @Override
+	    public void onAttachedToView(Delegate delegate) {
+	        mDelete = (MainPresenterDelegate) delegate;
+	        mDelete.onGetProducts(null);
+	    }
+	
+	    @Override
+	    public void onDetachedFromView(Delegate delegate) {
+	
+	    }
+	}
+	
+	public class UserPresenter implements Presenter {
+	    private UserPresenterDelegate mDelete;
+	
+	    @Override
+	    public void onAttachedToView(Delegate delegate) {
+	        mDelete = (UserPresenterDelegate) delegate;
+	        mDelete.onGetUserInfo("lunqw", 'M', 18);
+	    }
+	
+	    @Override
+	    public void onDetachedFromView(Delegate delegate) {
+	
+	    }
+	}
+	
+	public class SettingPresenter implements Presenter {
+	    private SettingPresenterDelegate mDelete;
+	
+	    @Override
+	    public void onAttachedToView(Delegate delegate) {
+	        mDelete = (SettingPresenterDelegate) delegate;
+	        mDelete.onGetUserSetting(new HashMap<String, String>());
+	    }
+	
+	    @Override
+	    public void onDetachedFromView(Delegate delegate) {
+	
 	    }
 	}

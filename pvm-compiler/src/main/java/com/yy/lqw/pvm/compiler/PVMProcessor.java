@@ -11,10 +11,12 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import com.yy.lqw.pvm.Delegate;
+import com.yy.lqw.pvm.Presenter;
 import com.yy.lqw.pvm.annotations.PVM;
 import com.yy.lqw.pvm.annotations.PVMSink;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -34,7 +36,8 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.MirroredTypesException;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
 import javax.tools.Diagnostic;
 
@@ -50,75 +53,42 @@ public class PVMProcessor extends AbstractProcessor {
     private final ClassName mHandlerClassName = ClassName.get("android.os", "Handler");
     private final ClassName mLooperClassName = ClassName.get("android.os", "Looper");
 
+    // handler field
+    private final FieldSpec mHandlerField = FieldSpec.builder(mHandlerClassName, "mHandler", Modifier.PRIVATE)
+            .initializer("new $T($T.getMainLooper())", mHandlerClassName, mLooperClassName)
+            .build();
+
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        note("PVMProcessor begin, %s, %s", annotations, roundEnv);
+        note("PVM: begin, %s, %s", annotations, roundEnv);
         for (Element classElement : roundEnv.getElementsAnnotatedWith(PVM.class)) {
-            PVM pvmAnnotation = classElement.getAnnotation(PVM.class);
-            // ClassName of view
-            ClassName viewClassName = (ClassName) ClassName.get(classElement.asType());
+            // PVM annotation class
+            final PVM pvmAnnotation = classElement.getAnnotation(PVM.class);
 
-            // ClassName of presenter
-            ClassName presenterClassName;
+            // class name of view
+            final ClassName viewClassName = (ClassName) ClassName.get(classElement.asType());
+
+            // class name of presenters
+            final List<ClassName> presenterClassNames = new ArrayList<>();
+
             try {
-                presenterClassName = ClassName.get(pvmAnnotation.presenter());
-            } catch (MirroredTypeException e) {
-                presenterClassName = (ClassName) ClassName.get(e.getTypeMirror());
-            }
-
-            // ClassName of delegate interface
-            final String delegateInterfaceName = presenterClassName.simpleName() + "Delegate";
-            ClassName delegateClassName = ClassName.get(
-                    presenterClassName.packageName(), delegateInterfaceName);
-
-            // mHandler field
-            FieldSpec handlerField = FieldSpec.builder(mHandlerClassName, "mHandler", Modifier.PRIVATE)
-                    .initializer("new $T($T.getMainLooper())", mHandlerClassName, mLooperClassName)
-                    .build();
-
-            // constructor
-            MethodSpec constructMethod = MethodSpec.constructorBuilder()
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(viewClassName, "view")
-                    .addStatement("mView = view")
-                    .build();
-            final String delegateImplName = viewClassName.simpleName()
-                    + delegateInterfaceName
-                    + "Impl";
-            TypeSpec.Builder classBuilder = TypeSpec.classBuilder(delegateImplName);
-            classBuilder.addModifiers(Modifier.PUBLIC)
-                    .addSuperinterface(delegateClassName)
-                    .addMethod(constructMethod)
-                    .addField(handlerField)
-                    .addField(viewClassName, "mView", Modifier.PRIVATE);
-
-            TypeSpec.Builder interfaceBuilder = TypeSpec.interfaceBuilder(delegateClassName);
-            interfaceBuilder.addModifiers(Modifier.PUBLIC)
-                    .addSuperinterface(Delegate.class);
-            for (Element methodElement : roundEnv.getElementsAnnotatedWith(PVMSink.class)) {
-                if (methodElement.getEnclosingElement().equals(classElement)) {
-                    ExecutableElement ee = (ExecutableElement) methodElement;
-                    addMethod(interfaceBuilder, ee, TypeSpec.Kind.INTERFACE);
-                    addMethod(classBuilder, ee, TypeSpec.Kind.CLASS);
+                for (Class<? extends Presenter> clazz : pvmAnnotation.value()) {
+                    presenterClassNames.add(ClassName.get(clazz));
+                }
+            } catch (MirroredTypesException e) {
+                for (TypeMirror typeMirror : e.getTypeMirrors()) {
+                    presenterClassNames.add((ClassName) ClassName.get(typeMirror));
                 }
             }
 
-            String packageName = presenterClassName.packageName();
-            TypeSpec typeSpec = interfaceBuilder.build();
-            JavaFile interfaceFile = JavaFile.builder(packageName, typeSpec).build();
-            packageName = viewClassName.packageName();
-            typeSpec = classBuilder.build();
-            JavaFile classFile = JavaFile.builder(packageName, typeSpec).build();
-            try {
-                classFile.writeTo(processingEnv.getFiler());
-                interfaceFile.writeTo(processingEnv.getFiler());
-            } catch (FilerException e) {
-                note("FilerException: " + e.getMessage());
-            } catch (IOException e) {
-                error("Write file error: " + e.getMessage());
+            if (presenterClassNames.size() > 0) {
+                note("PVM: processing, view: %s, presenter(s): %s", viewClassName, presenterClassNames);
+                processView(viewClassName, presenterClassNames, roundEnv, classElement);
+            } else {
+                error("PVM: error, no presenter found in view: %s", viewClassName);
             }
         }
-        note("PVMProcessor end");
+        note("PVM: done");
         return false;
     }
 
@@ -127,24 +97,100 @@ public class PVMProcessor extends AbstractProcessor {
         return mSupportedAnnotationTypes;
     }
 
+    /**
+     * Process a view which contains PVM annotation {@link PVM},
+     * generate delegate interface and implementation class
+     * <p>
+     * Delegate name rule：Presenter's name + "Delegate"
+     * Delegate name rule：View's name + Presenter's name + "DelegateImpl"
+     *
+     * @param viewClassName       View clas
+     * @param presenterClassNames list of presenter classes
+     * @param roundEnv
+     * @param classElement
+     */
+    private void processView(ClassName viewClassName,
+                             List<ClassName> presenterClassNames,
+                             RoundEnvironment roundEnv,
+                             Element classElement) {
+        // constructor field
+        final MethodSpec constructMethod = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(viewClassName, "view")
+                .addStatement("mView = view")
+                .build();
+
+        for (int i = 0; i < presenterClassNames.size(); i++) {
+            // class name of presenter
+            final ClassName presenterClassName = presenterClassNames.get(i);
+
+            // name of delegate interface
+            final String delegateInterfaceName = presenterClassName.simpleName() + "Delegate";
+
+            // class name of delegate interface
+            final ClassName delegateInterfaceClassName = ClassName.get(
+                    presenterClassName.packageName(), delegateInterfaceName);
+
+            // name of delegate impl
+            final String delegateImplName = viewClassName.simpleName()
+                    + delegateInterfaceName
+                    + "Impl";
+
+            // delegate impl class builder
+            final TypeSpec.Builder delegateImplBuilder = TypeSpec.classBuilder(delegateImplName);
+            delegateImplBuilder.addModifiers(Modifier.PUBLIC)
+                    .addSuperinterface(delegateInterfaceClassName)
+                    .addMethod(constructMethod)
+                    .addField(mHandlerField)
+                    .addField(viewClassName, "mView", Modifier.PRIVATE);
+
+            // delegate interface builder
+            final TypeSpec.Builder delegateBuilder = TypeSpec.interfaceBuilder(delegateInterfaceClassName);
+            delegateBuilder.addModifiers(Modifier.PUBLIC)
+                    .addSuperinterface(Delegate.class);
+
+            for (Element methodElement : roundEnv.getElementsAnnotatedWith(PVMSink.class)) {
+                final PVMSink sinkAnnotation = methodElement.getAnnotation(PVMSink.class);
+                if (i == sinkAnnotation.value()
+                        && methodElement.getEnclosingElement().equals(classElement)) {
+                    final ExecutableElement ee = (ExecutableElement) methodElement;
+                    addMethod(delegateBuilder, ee, TypeSpec.Kind.INTERFACE);
+                    addMethod(delegateImplBuilder, ee, TypeSpec.Kind.CLASS);
+                }
+            }
+
+            // write delegate interface class
+            String packageName = presenterClassName.packageName();
+            TypeSpec typeSpec = delegateBuilder.build();
+            JavaFile javaFile = JavaFile.builder(packageName, typeSpec).build();
+            writeToFile(javaFile);
+
+            // write delegate impl class
+            packageName = viewClassName.packageName();
+            typeSpec = delegateImplBuilder.build();
+            javaFile = JavaFile.builder(packageName, typeSpec).build();
+            writeToFile(javaFile);
+        }
+    }
+
     private void addMethod(TypeSpec.Builder builder,
                            ExecutableElement element,
                            TypeSpec.Kind kind) {
         final String methodName = element.getSimpleName().toString();
-        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(methodName);
+        final MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(methodName);
         for (TypeParameterElement typeParameterElement : element.getTypeParameters()) {
-            TypeVariable var = (TypeVariable) typeParameterElement.asType();
+            final TypeVariable var = (TypeVariable) typeParameterElement.asType();
             methodBuilder.addTypeVariable(TypeVariableName.get(var));
         }
 
         // parameters
-        List<? extends VariableElement> parameters = element.getParameters();
+        final List<? extends VariableElement> parameters = element.getParameters();
         for (VariableElement parameter : parameters) {
-            TypeName type = TypeName.get(parameter.asType());
-            String name = parameter.getSimpleName().toString();
-            Set<Modifier> parameterModifiers = parameter.getModifiers();
-            Modifier[] modifiers = new Modifier[parameterModifiers.size()];
-            ParameterSpec.Builder parameterBuilder = ParameterSpec.builder(type, name)
+            final TypeName type = TypeName.get(parameter.asType());
+            final String name = parameter.getSimpleName().toString();
+            final Set<Modifier> parameterModifiers = parameter.getModifiers();
+            final Modifier[] modifiers = new Modifier[parameterModifiers.size()];
+            final ParameterSpec.Builder parameterBuilder = ParameterSpec.builder(type, name)
                     .addModifiers(parameterModifiers.toArray(modifiers))
                     .addModifiers(Modifier.FINAL);
             for (AnnotationMirror mirror : parameter.getAnnotationMirrors()) {
@@ -177,6 +223,16 @@ public class PVMProcessor extends AbstractProcessor {
         }
 
         builder.addMethod(methodBuilder.build());
+    }
+
+    private void writeToFile(JavaFile file) {
+        try {
+            file.writeTo(processingEnv.getFiler());
+        } catch (FilerException e) {
+            note("FilerException: " + e.getMessage());
+        } catch (IOException e) {
+            error("Write file error: " + e.getMessage());
+        }
     }
 
     private void error(String message, Object... args) {

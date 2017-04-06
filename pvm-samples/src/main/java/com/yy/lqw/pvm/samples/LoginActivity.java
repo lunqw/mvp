@@ -1,5 +1,6 @@
 package com.yy.lqw.pvm.samples;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -10,9 +11,9 @@ import com.yy.lqw.pvm.PVManager;
 import com.yy.lqw.pvm.annotations.PVM;
 import com.yy.lqw.pvm.annotations.PVMSink;
 
-@PVM(presenter = LoginPresenter.class)
+@PVM({LoginPresenter.class})
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
-    private LoginPresenter mPresenter = new LoginPresenter();
+    private LoginPresenter mLoginPresenter = new LoginPresenter();
     private EditText mPassport;
     private EditText mPassword;
     private TextView mErrorText;
@@ -21,7 +22,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        PVManager.bind(this, mPresenter, getWindow().getDecorView());
+        PVManager.bind(getWindow().getDecorView(), this, mLoginPresenter);
         mPassport = (EditText) findViewById(R.id.et_passport);
         mPassword = (EditText) findViewById(R.id.et_password);
         mErrorText = (TextView) findViewById(R.id.tv_error_tips);
@@ -31,12 +32,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void onClick(View v) {
         final String passport = mPassport.getText().toString();
         final String password = mPassword.getText().toString();
-        mPresenter.login(passport, password);
+        mLoginPresenter.login(passport, password);
     }
 
     @PVMSink
     void onLoginSuccess(String token) {
-        // TODO: login success
+        final Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
     }
 
     @PVMSink
