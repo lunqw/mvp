@@ -12,7 +12,7 @@ import com.yy.lqw.pvm.annotations.PVMSink;
 
 @PVM(presenter = LoginPresenter.class)
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
-    LoginPresenter mPresenter;
+    private LoginPresenter mPresenter = new LoginPresenter();
     private EditText mPassport;
     private EditText mPassword;
     private TextView mErrorText;
@@ -21,8 +21,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        mPresenter = (LoginPresenter) PVManager.INSTANCE.bind(this,
-                getWindow().getDecorView());
+        PVManager.bind(this, mPresenter, getWindow().getDecorView());
         mPassport = (EditText) findViewById(R.id.et_passport);
         mPassword = (EditText) findViewById(R.id.et_password);
         mErrorText = (TextView) findViewById(R.id.tv_error_tips);
