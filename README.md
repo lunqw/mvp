@@ -17,8 +17,8 @@
 模块build.gradle
 
 	apply plugin: 'android-apt'
-    compile 'com.github.lunqw.pvm:pvm:0.3'
-    apt 'com.github.lunqw.pvm:pvm-compiler:0.3'
+    compile 'com.github.lunqw.pvm:pvm:0.3.1'
+    apt 'com.github.lunqw.pvm:pvm-compiler:0.3.1'
 
 ## 工作方式
 	// 待完成
@@ -38,7 +38,7 @@
 	    protected void onCreate(Bundle savedInstanceState) {
 	        super.onCreate(savedInstanceState);
 	        setContentView(R.layout.activity_login);
-	        PVManager.bind(getWindow().getDecorView(), this, mLoginPresenter);
+	        PVManager.bind(this, mLoginPresenter, getWindow().getDecorView());
 	        mPassport = (EditText) findViewById(R.id.et_passport);
 	        mPassword = (EditText) findViewById(R.id.et_password);
 	        mErrorText = (TextView) findViewById(R.id.tv_error_tips);
@@ -103,7 +103,7 @@
 	    protected void onCreate(Bundle savedInstanceState) {
 	        super.onCreate(savedInstanceState);
 	        setContentView(R.layout.activity_main);
-	        PVManager.bind(getWindow().getDecorView(), this, mPresenters);
+	        PVManager.bind(this, Arrays.asList(mPresenters), getWindow().getDecorView());
 	    }
 	
 	    @PVMSink

@@ -22,7 +22,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        PVManager.bind(getWindow().getDecorView(), this, mLoginPresenter);
+        PVManager.bind(this, mLoginPresenter, getWindow().getDecorView());
         mPassport = (EditText) findViewById(R.id.et_passport);
         mPassword = (EditText) findViewById(R.id.et_password);
         mErrorText = (TextView) findViewById(R.id.tv_error_tips);

@@ -9,6 +9,7 @@ import com.yy.lqw.pvm.Presenter;
 import com.yy.lqw.pvm.annotations.PVM;
 import com.yy.lqw.pvm.annotations.PVMSink;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -21,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        PVManager.bind(getWindow().getDecorView(), this, mPresenters);
+        PVManager.bind(this, Arrays.asList(mPresenters), getWindow().getDecorView());
     }
 
     @PVMSink

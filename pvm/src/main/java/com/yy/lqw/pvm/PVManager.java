@@ -39,9 +39,9 @@ public class PVManager {
      * @param presenters      MVP中的presenter对象
      * @return true - bind成功， false - bind失败
      */
-    public static boolean bind(final View lifeCycleObject,
-                               final Object viewObject,
-                               final List<? extends Presenter> presenters) {
+    public static boolean bind(final Object viewObject,
+                               final List<? extends Presenter> presenters,
+                               final View lifeCycleObject) {
         if (viewObject == null || presenters == null || lifeCycleObject == null) {
             throw new NullPointerException("viewObject, presenters and lifeCycleObject must not be null");
         }
@@ -111,15 +111,9 @@ public class PVManager {
         return false;
     }
 
-    public static boolean bind(final View lifeCycleObject,
-                               final Object viewObject,
-                               final Presenter presenter) {
-        return bind(lifeCycleObject, viewObject, Arrays.asList(presenter));
-    }
-
-    public static boolean bind(final View lifeCycleObject,
-                               final Object viewObject,
-                               final Presenter... presenters) {
-        return bind(lifeCycleObject, viewObject, Arrays.asList(presenters));
+    public static boolean bind(final Object viewObject,
+                               final Presenter presenter,
+                               final View lifeCycleObject) {
+        return bind(viewObject, Arrays.asList(presenter), lifeCycleObject);
     }
 }
