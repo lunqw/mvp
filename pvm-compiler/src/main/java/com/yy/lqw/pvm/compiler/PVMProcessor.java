@@ -72,7 +72,7 @@ public class PVMProcessor extends AbstractProcessor {
             final List<ClassName> presenterClassNames = new ArrayList<>();
 
             try {
-                for (Class<? extends Presenter> clazz : pvmAnnotation.value()) {
+                for (Class<? extends Presenter> clazz : pvmAnnotation.presenters()) {
                     presenterClassNames.add(ClassName.get(clazz));
                 }
             } catch (MirroredTypesException e) {
@@ -151,7 +151,7 @@ public class PVMProcessor extends AbstractProcessor {
 
             for (Element methodElement : roundEnv.getElementsAnnotatedWith(PVMSink.class)) {
                 final PVMSink sinkAnnotation = methodElement.getAnnotation(PVMSink.class);
-                if (i == sinkAnnotation.value()
+                if (i == sinkAnnotation.ordinal()
                         && methodElement.getEnclosingElement().equals(classElement)) {
                     final ExecutableElement ee = (ExecutableElement) methodElement;
                     addMethod(delegateBuilder, ee, TypeSpec.Kind.INTERFACE);

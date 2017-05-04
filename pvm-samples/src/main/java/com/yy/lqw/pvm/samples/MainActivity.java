@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-@PVM({MainPresenter.class, UserPresenter.class, SettingPresenter.class})
+@PVM(presenters = {MainPresenter.class, UserPresenter.class, SettingPresenter.class})
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private Presenter[] mPresenters = {new MainPresenter(), new UserPresenter(), new SettingPresenter()};
@@ -30,12 +30,12 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onGetProducts");
     }
 
-    @PVMSink(1)
+    @PVMSink(ordinal = 1)
     void onGetUserInfo(String nick, char sex, int age) {
         Log.d(TAG, "onGetUserInfo");
     }
 
-    @PVMSink(2)
+    @PVMSink(ordinal = 2)
     void onGetUserSetting(Map<String, String> settings) {
         Log.d(TAG, "onGetUserSetting");
     }

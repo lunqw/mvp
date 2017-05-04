@@ -61,7 +61,7 @@ public class PVManager {
         if (pvmAnnotation == null) {
             throw new IllegalArgumentException("@PVM annotation miss");
         } else {
-            final List<Class<? extends Presenter>> presenterClasses = Arrays.asList(pvmAnnotation.value());
+            final List<Class<? extends Presenter>> presenterClasses = Arrays.asList(pvmAnnotation.presenters());
             for (Presenter presenter : presenters) {
                 if (!presenterClasses.contains(presenter.getClass())) {
                     throw new IllegalArgumentException("Presenter["

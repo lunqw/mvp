@@ -11,7 +11,7 @@ import com.yy.lqw.pvm.PVManager;
 import com.yy.lqw.pvm.annotations.PVM;
 import com.yy.lqw.pvm.annotations.PVMSink;
 
-@PVM({LoginPresenter.class})
+@PVM(presenters = {LoginPresenter.class})
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
     private LoginPresenter mLoginPresenter = new LoginPresenter();
     private EditText mPassport;

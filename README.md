@@ -17,8 +17,8 @@
 模块build.gradle
 
 	apply plugin: 'android-apt'
-    compile 'com.github.lunqw.pvm:pvm:0.3.1'
-    apt 'com.github.lunqw.pvm:pvm-compiler:0.3.1'
+    compile 'com.github.lunqw.pvm:pvm:0.4'
+    apt 'com.github.lunqw.pvm:pvm-compiler:0.4'
 
 ## 工作方式
 	// 待完成
@@ -27,7 +27,7 @@
 
 ## Samples
 ### 一个View只有一个Presenter
-	@PVM({LoginPresenter.class})
+	@PVM(presenters = {LoginPresenter.class})
 	public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 	    private LoginPresenter mLoginPresenter = new LoginPresenter();
 	    private EditText mPassport;
@@ -94,7 +94,7 @@
 
 ### 一个View含有多个Presenter
 
-	@PVM({MainPresenter.class, UserPresenter.class, SettingPresenter.class})
+	@PVM(presenters = {MainPresenter.class, UserPresenter.class, SettingPresenter.class})
 	public class MainActivity extends AppCompatActivity {
 	    private static final String TAG = "MainActivity";
 	    private Presenter[] mPresenters = {new MainPresenter(), new UserPresenter(), new SettingPresenter()};
@@ -111,12 +111,12 @@
 	        Log.d(TAG, "onGetProducts");
 	    }
 	
-	    @PVMSink(1)
+	    @PVMSink(ordinal = 1)
 	    void onGetUserInfo(String nick, char sex, int age) {
 	        Log.d(TAG, "onGetUserInfo");
 	    }
 	
-	    @PVMSink(2)
+	    @PVMSink(ordinal = 2)
 	    void onGetUserSetting(Map<String, String> settings) {
 	        Log.d(TAG, "onGetUserSetting");
 	    }
