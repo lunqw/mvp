@@ -17,8 +17,8 @@
 模块build.gradle
 
 	apply plugin: 'android-apt'
-    compile 'com.github.lunqw.mvp:mvp:0.4'
-    apt 'com.github.lunqw.mvp:mvp-compiler:0.4'
+    compile 'com.github.lunqw.mvp:mvp:0.5'
+    apt 'com.github.lunqw.mvp:mvp-compiler:0.5'
 
 ## 工作方式
 	// 待完成
