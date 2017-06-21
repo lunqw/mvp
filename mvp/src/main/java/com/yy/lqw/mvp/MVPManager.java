@@ -8,6 +8,7 @@ import com.yy.lqw.mvp.annotations.MVP;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -24,7 +25,7 @@ public class MVPManager {
     /**
      * 开启调试模式
      *
-     * @param debug
+     * @param debug 是否开启调试模式
      */
     public static void setDebug(boolean debug) {
         sDebug = debug;
@@ -114,6 +115,6 @@ public class MVPManager {
     public static boolean bind(final Object viewObject,
                                final Presenter presenter,
                                final View lifeCycleObject) {
-        return bind(viewObject, Arrays.asList(presenter), lifeCycleObject);
+        return bind(viewObject, Collections.singletonList(presenter), lifeCycleObject);
     }
 }
