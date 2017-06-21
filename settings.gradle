@@ -1,7 +1,7 @@
-include ':pvm-base'
-include ':pvm-annotations'
-include ':pvm'
-include ':pvm-compiler'
-include ':pvm-samples'
+include ':mvp-base'
+include ':mvp-annotations'
+include ':mvp'
+include ':mvp-compiler'
+include ':mvp-samples'
 
-rootProject.name = 'pvm-parent'
+rootProject.name = 'mvp-parent'

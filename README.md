@@ -1,4 +1,4 @@
-**pvm**是一个自动生成mvp模式代码工具，提供以下功能：
+**mvp**是一个自动生成mvp模式代码工具，提供以下功能：
 
 1. 自动生成view接口；
 2. presenter生命周期管理；
@@ -17,8 +17,8 @@
 模块build.gradle
 
 	apply plugin: 'android-apt'
-    compile 'com.github.lunqw.pvm:pvm:0.4'
-    apt 'com.github.lunqw.pvm:pvm-compiler:0.4'
+    compile 'com.github.lunqw.mvp:mvp:0.4'
+    apt 'com.github.lunqw.mvp:mvp-compiler:0.4'
 
 ## 工作方式
 	// 待完成
@@ -27,7 +27,7 @@
 
 ## Samples
 ### 一个View只有一个Presenter
-	@PVM(presenters = {LoginPresenter.class})
+	@MVP(presenters = {LoginPresenter.class})
 	public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 	    private LoginPresenter mLoginPresenter = new LoginPresenter();
 	    private EditText mPassport;
@@ -38,7 +38,7 @@
 	    protected void onCreate(Bundle savedInstanceState) {
 	        super.onCreate(savedInstanceState);
 	        setContentView(R.layout.activity_login);
-	        PVManager.bind(this, mLoginPresenter, getWindow().getDecorView());
+	        MVPManager.bind(this, mLoginPresenter, getWindow().getDecorView());
 	        mPassport = (EditText) findViewById(R.id.et_passport);
 	        mPassword = (EditText) findViewById(R.id.et_password);
 	        mErrorText = (TextView) findViewById(R.id.tv_error_tips);
@@ -51,13 +51,13 @@
 	        mLoginPresenter.login(passport, password);
 	    }
 	
-	    @PVMSink
+	    @MVPSink
 	    void onLoginSuccess(String token) {
 	        final Intent intent = new Intent(this, MainActivity.class);
 	        startActivity(intent);
 	    }
 	
-	    @PVMSink
+	    @MVPSink
 	    void onLoginFailed(int code, String message) {
 	        final String error = String.format("%d: %s", code, message);
 	        mErrorText.setText(error);
@@ -94,7 +94,7 @@
 
 ### 一个View含有多个Presenter
 
-	@PVM(presenters = {MainPresenter.class, UserPresenter.class, SettingPresenter.class})
+	@MVP(presenters = {MainPresenter.class, UserPresenter.class, SettingPresenter.class})
 	public class MainActivity extends AppCompatActivity {
 	    private static final String TAG = "MainActivity";
 	    private Presenter[] mPresenters = {new MainPresenter(), new UserPresenter(), new SettingPresenter()};
@@ -103,20 +103,20 @@
 	    protected void onCreate(Bundle savedInstanceState) {
 	        super.onCreate(savedInstanceState);
 	        setContentView(R.layout.activity_main);
-	        PVManager.bind(this, Arrays.asList(mPresenters), getWindow().getDecorView());
+	        MVPManager.bind(this, Arrays.asList(mPresenters), getWindow().getDecorView());
 	    }
 	
-	    @PVMSink
+	    @MVPSink
 	    void onGetProducts(List<Object> products) {
 	        Log.d(TAG, "onGetProducts");
 	    }
 	
-	    @PVMSink(ordinal = 1)
+	    @MVPSink(ordinal = 1)
 	    void onGetUserInfo(String nick, char sex, int age) {
 	        Log.d(TAG, "onGetUserInfo");
 	    }
 	
-	    @PVMSink(ordinal = 2)
+	    @MVPSink(ordinal = 2)
 	    void onGetUserSetting(Map<String, String> settings) {
 	        Log.d(TAG, "onGetUserSetting");
 	    }
@@ -133,7 +133,6 @@
 	
 	    @Override
 	    public void onDetachedFromView(Delegate delegate) {
-	
 	    }
 	}
 	
@@ -148,7 +147,6 @@
 	
 	    @Override
 	    public void onDetachedFromView(Delegate delegate) {
-	
 	    }
 	}
 	
@@ -163,6 +161,5 @@
 	
 	    @Override
 	    public void onDetachedFromView(Delegate delegate) {
-	
 	    }
 	}

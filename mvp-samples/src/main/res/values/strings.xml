@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MVP</string>
+    <string name="login_passport">Passport</string>
+    <string name="login_password">Password</string>
+</resources>
