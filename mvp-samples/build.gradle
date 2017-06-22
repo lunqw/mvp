@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'android-apt'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -29,5 +28,5 @@ dependencies {
     compile deps.appcompat
     testCompile deps.junit
     compile project(':mvp')
-    apt project(':mvp-compiler')
+    annotationProcessor project(':mvp-compiler')
 }
