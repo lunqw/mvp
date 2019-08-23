@@ -3,16 +3,18 @@
 buildscript {
     repositories {
         jcenter()
+        google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.2'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
+        classpath 'com.android.tools.build:gradle:3.4.2'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
     }
 }
 
 allprojects {
     repositories {
         jcenter()
+        google()
     }
 }
 
@@ -23,18 +25,20 @@ task clean(type: Delete) {
 ext {
     versionCode = 1
     versionName = '1.0'
-    compileSdkVersion = 25
-    buildToolsVersion = '25.0.1'
-    minSdkVersion = 12
-    targetSdkVersion = 25
+    compileSdkVersion = 28
+    buildToolsVersion = '28.0.3'
+    minSdkVersion = 21
+    targetSdkVersion = 28
     sourceCompatibilityVersion = JavaVersion.VERSION_1_7
     targetCompatibilityVersion = JavaVersion.VERSION_1_7
 }
 
 ext.deps = [
-        junit       : 'junit:junit:4.12',
-        espressocore: 'com.android.support.test.espresso:espresso-core:2.2.2',
-        appcompat   : 'com.android.support:appcompat-v7:25.1.0',
-        javapoet    : 'com.squareup:javapoet:1.7.0',
-        autoservice : 'com.google.auto.service:auto-service:1.0-rc2',
+        junit          : 'junit:junit:4.12',
+        espressocore   : 'com.android.support.test.espresso:espresso-core:3.0.2',
+        appcompat      : 'com.android.support:appcompat-v7:28.0.0',
+        javapoet       : 'com.squareup:javapoet:1.7.0',
+        autoservice    : 'com.google.auto.service:auto-service:1.0-rc6',
+        incap          : "net.ltgt.gradle.incap:incap:0.2",
+        incap_processor: "net.ltgt.gradle.incap:incap-processor:0.2"
 ]

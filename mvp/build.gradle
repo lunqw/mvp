@@ -21,11 +21,11 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile(deps.espressocore, {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestImplementation(deps.espressocore, {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile deps.appcompat
-    testCompile deps.junit
-    compile project(':mvp-annotations')
+    implementation deps.appcompat
+    testImplementation deps.junit
+    api project(':mvp-annotations')
 }

@@ -15,11 +15,11 @@ import com.yy.lqw.mvp.Presenter;
 import com.yy.lqw.mvp.annotations.MVP;
 import com.yy.lqw.mvp.annotations.MVPSink;
 
+import net.ltgt.gradle.incap.IncrementalAnnotationProcessor;
+import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType;
+
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -27,6 +27,7 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.FilerException;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
@@ -41,15 +42,14 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
 import javax.tools.Diagnostic;
 
+@IncrementalAnnotationProcessor(IncrementalAnnotationProcessorType.ISOLATING)
 @AutoService(Processor.class)
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
+@SupportedAnnotationTypes({
+        "com.yy.lqw.mvp.annotations.MVP",
+        "com.yy.lqw.mvp.annotations.MVPSink"
+})
 public class MVProcessor extends AbstractProcessor {
-    private final Set<String> mSupportedAnnotationTypes = Collections.unmodifiableSet(
-            new HashSet<>(Arrays.asList(
-                    MVP.class.getCanonicalName(),
-                    MVPSink.class.getCanonicalName()
-            ))
-    );
     private final ClassName mHandlerClassName = ClassName.get("android.os", "Handler");
     private final ClassName mLooperClassName = ClassName.get("android.os", "Looper");
 
@@ -90,11 +90,6 @@ public class MVProcessor extends AbstractProcessor {
         }
         note("MVP: done");
         return false;
-    }
-
-    @Override
-    public Set<String> getSupportedAnnotationTypes() {
-        return mSupportedAnnotationTypes;
     }
 
     /**

@@ -7,6 +7,9 @@ targetCompatibility = rootProject.ext.targetCompatibilityVersion
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile deps.javapoet
-    compile deps.autoservice
+    compileOnly deps.autoservice
+    annotationProcessor deps.autoservice
+    compileOnly deps.incap
+    annotationProcessor deps.incap_processor
     compile project(':mvp-annotations')
 }
